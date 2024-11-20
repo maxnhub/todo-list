@@ -6,8 +6,8 @@
       <nav class="navbar">
         <div class="logo">
           <img src=
-                   "https://media.geeksforgeeks.org/gfg-gg-logo.svg"
-               alt="GeeksforGeeks logo">
+                   "./assets/icon4.png"
+               alt="logo">
         </div>
       </nav>
     </header>
