@@ -47,11 +47,38 @@ const deleteItem = (index) => {
   list.value.splice(index, 1);
 };
 
+const modal = document.getElementById('modal');
+const modalInput = document.getElementById('modal-input');
+const modalSave = document.getElementById('modal-save');
+const modalCancel = document.getElementById('modal-cancel');
+
+const showModal = (defaultValue = '', onSave) => {
+  modalInput.value = defaultValue;
+  modal.classList.remove('hidden');
+
+  const handleSave = () => {
+    const editedValue = modalInput.value.trim();
+    if (editedValue) {
+      onSave(editedValue);
+      closeModal();
+    }
+  };
+
+  const closeModal = () => {
+    modal.classList.add('hidden');
+    modalSave.removeEventListener('click', handleSave);
+    modalCancel.removeEventListener('click', closeModal);
+  };
+
+  modalSave.addEventListener('click', handleSave);
+  modalCancel.addEventListener('click', closeModal);
+};
+
 const editItem = (index) => {
-  const editedTodo = prompt('Edit the todo:');
-  if (editedTodo !== null && editedTodo.trim() !== '') {
-    list.value[index].value = editedTodo.trim();
-  }
+  const currentTodo = list.value[index].value; // get current elem
+  showModal(currentTodo, (editedTodo) => {
+    list.value[index].value = editedTodo;
+  });
 };
 
 const toggleCompleted = (index) => {
