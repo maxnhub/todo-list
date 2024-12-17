@@ -6,18 +6,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, defineEmits } from 'vue';
 
 // Define emitted events
-defineEmits(['add-item']);
+const emit = defineEmits(['add-item']);
 
 // Reactive input state
 const input = ref('');
 
 // Emit add-item event
 const emitAddItem = () => {
+    console.log('Emitting add-item:');
     if (input.value.trim() !== '') {
         emit('add-item', input.value);
+        console.log('Emitting add-item with value:');
         input.value = '';
     }
 };

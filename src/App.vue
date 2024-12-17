@@ -6,33 +6,29 @@
       <hr />
       <TodoInput @add-item="addItem" />
       <TodoTable
-        :list="filteredList"
+        :list="list"
         @delete-item="deleteItem"
         @edit-item="editItem"
         @toggle-completed="toggleCompleted"
       />
+      <Modal ref="modalRef" @save="handleSave" @close="handleClose" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import Header from './components/Header.vue';
 import TodoInput from './components/TodoInput.vue';
 import TodoTable from './components/TodoTable.vue';
+import Modal from './components/Modal.vue';
 
-// Reactive variables
+// Список задач (реактивный)
 const list = ref([]);
-const searchInput = ref('');
+const modalRef = ref(null); // Ссылка на модальное окно
+let editingIndex = null; // Индекс редактируемого элемента
 
-// Computed property for filtered list
-const filteredList = computed(() =>
-  list.value.filter((item) =>
-    item.value.toLowerCase().includes(searchInput.value.toLowerCase())
-  )
-);
-
-// Methods
+// Добавляем задачу
 const addItem = (newItem) => {
   if (newItem.trim() !== '') {
     list.value.push({
@@ -43,45 +39,34 @@ const addItem = (newItem) => {
   }
 };
 
+// Удаляем задачу
 const deleteItem = (index) => {
   list.value.splice(index, 1);
 };
 
-const modal = document.getElementById('modal');
-const modalInput = document.getElementById('modal-input');
-const modalSave = document.getElementById('modal-save');
-const modalCancel = document.getElementById('modal-cancel');
-
-const showModal = (defaultValue = '', onSave) => {
-  modalInput.value = defaultValue;
-  modal.classList.remove('hidden');
-
-  const handleSave = () => {
-    const editedValue = modalInput.value.trim();
-    if (editedValue) {
-      onSave(editedValue);
-      closeModal();
-    }
-  };
-
-  const closeModal = () => {
-    modal.classList.add('hidden');
-    modalSave.removeEventListener('click', handleSave);
-    modalCancel.removeEventListener('click', closeModal);
-  };
-
-  modalSave.addEventListener('click', handleSave);
-  modalCancel.addEventListener('click', closeModal);
-};
-
+// Редактируем задачу
 const editItem = (index) => {
-  const currentTodo = list.value[index].value; // get current elem
-  showModal(currentTodo, (editedTodo) => {
-    list.value[index].value = editedTodo;
-  });
+  editingIndex = index;
+  const currentTodo = list.value[index].value;
+  modalRef.value.show(currentTodo); // Показываем модальное окно с текущим значением
 };
 
+// Обрабатываем сохранение из модального окна
+const handleSave = (editedTodo) => {
+  if (editingIndex !== null && editedTodo.trim() !== '') {
+    // Обновляем задачу напрямую
+    list.value[editingIndex].value = editedTodo.trim();
+    editingIndex = null; // Сбрасываем индекс
+  }
+};
+
+// Отмечаем задачу выполненной
 const toggleCompleted = (index) => {
   list.value[index].completed = !list.value[index].completed;
+};
+
+// Обработка закрытия модального окна
+const handleClose = () => {
+  editingIndex = null;
 };
 </script>
